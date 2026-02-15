@@ -1303,7 +1303,13 @@ const sidebars: SidebarsConfig = {
     {
       'Outlook (outlook)': [
         {
-          calendargroup: [
+          calendar: [
+            {
+              type: 'doc',
+              label: 'calendar remove',
+              id: 'cmd/outlook/calendar/calendar-remove'
+            }
+          ],          calendargroup: [
             {
               type: 'doc',
               label: 'calendargroup list',
