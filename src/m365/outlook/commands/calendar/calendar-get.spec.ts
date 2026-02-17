@@ -192,7 +192,7 @@ describe(commands.CALENDAR_GET, () => {
         };
       }
 
-      throw opts.url;// 'Invalid request';
+      throw 'Invalid request';
     });
 
     const parsedSchema = commandOptionsSchema.safeParse({
