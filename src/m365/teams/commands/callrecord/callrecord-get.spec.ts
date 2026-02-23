@@ -1192,6 +1192,7 @@ describe(commands.CALLRECORD_GET, () => {
   let loggerLogSpy: sinon.SinonSpy;
   let commandInfo: CommandInfo;
   let commandOptionsSchema: typeof options;
+  let assertTokenStub: sinon.SinonStub;
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
@@ -1219,7 +1220,7 @@ describe(commands.CALLRECORD_GET, () => {
     };
     loggerLogSpy = sinon.spy(logger, 'log');
 
-    sinon.stub(accessToken, 'assertAccessTokenType').withArgs('application').resolves();
+    assertTokenStub = sinon.stub(accessToken, 'assertAccessTokenType').resolves();
   });
 
   afterEach(() => {
@@ -1256,7 +1257,14 @@ describe(commands.CALLRECORD_GET, () => {
     assert.strictEqual(actual.success, true);
   });
 
-  it('retrieves the call record', async () => {
+  it('forces application token only', async () => {
+    sinon.stub(request, 'get').resolves({});
+
+    await command.action(logger, { options: { id: validId } });
+    assert(assertTokenStub.calledOnceWithExactly('application'));
+  });
+
+  it('correctly logs the command result', async () => {
     sinon.stub(request, 'get').callsFake(async (opts) => {
       if (opts.url === `https://graph.microsoft.com/v1.0/communications/callRecords/${validId}?$expand=sessions($expand=segments)`) {
         return responseWithSessions;
@@ -1273,9 +1281,14 @@ describe(commands.CALLRECORD_GET, () => {
   });
 
   it('handles random API error', async () => {
-    const errorMessage = 'Could not find the requested call record. Records about calls or online meetings that started more than 30 days ago are not available.';
-    sinon.stub(request, 'get').rejects(new Error(errorMessage));
+    const error = {
+      error: {
+        message: 'Could not find the requested call record. Records about calls or online meetings that started more than 30 days ago are not available.'
+      }
+    };
+    sinon.stub(request, 'get').rejects(error);
 
-    await assert.rejects(command.action(logger, { options: { id: validId } }), new CommandError(errorMessage));
+    await assert.rejects(command.action(logger, { options: { id: validId } }),
+      new CommandError(error.error.message));
   });
 });
