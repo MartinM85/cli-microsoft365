@@ -1,0 +1,245 @@
+import Global from '../../_global.mdx';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# event list
+
+Retrieves a list of events from a specific calendar of a user.
+
+## Usage
+
+```sh
+m365 outlook event list [options]
+```
+
+## Options
+
+```md definition-list
+`--userId [userId]`
+: ID of the user. Specify either `userId` or `userName`, but not both.
+
+`--userName [userName]`
+: UPN of the user. Specify either `userId` or `userName`, but not both.
+
+`--calendarId [calendarId]`
+: ID of the calendar. Specify either `calendarId` or `calendarName`, but not both.
+
+`--calendarName [calendarName]`
+: Name of the calendar. Specify either `calendarId` or `calendarName`, but not both.
+
+`--startDateTime [startDateTime]`
+: Time indicating the inclusive start of a time range when the event starts.
+
+`--endDateTime [endDateTime]`
+: Time indicating the exclusive end of a time range when the event starts.
+
+`--timeZone [timeZone]`
+: The time zone for the event start and end times.
+
+`--properties [properties]`
+: Comma-separated list of properties to retrieve.
+
+`--filter [filter]`
+: OData filter to apply when retrieving the events.
+```
+
+<Global />
+
+## Remarks
+
+:::info
+
+When you specify a value for `timeZone`, consider the options of the [time zone list](https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/default-time-zones?view=windows-11#time-zones), or [additional time zone list](https://learn.microsoft.com/en-us/graph/api/resources/datetimetimezone?view=graph-rest-1.0#additional-time-zones)
+
+:::
+
+## Permissions
+
+<Tabs>
+  <TabItem value="Delegated">
+
+  | Resource        | Permissions                         |
+  |-----------------|-------------------------------------|
+  | Microsoft Graph | Calendars.ReadBasic, Calendars.Read |
+
+  </TabItem>
+  <TabItem value="Application">
+
+  | Resource        | Permissions                         |
+  |-----------------|-------------------------------------|
+  | Microsoft Graph | Calendars.ReadBasic, Calendars.Read |
+
+  </TabItem>
+</Tabs>
+
+
+## Examples
+
+List all events for the current signed-in user from a calendar specified by id.
+
+```sh
+m365 outlook event list --userId "@meId" --calendarId "AAMkAGRkZ"
+```
+
+List all events for the current signed-in user from a calendar specified by id and return event times in Pacific Standard Time time zone.
+
+```sh
+m365 outlook event list --userId "@meId" --calendarId "AAMkAGRkZ" --timeZone 'Pacific Standard Time'
+```
+
+List only id, subject, start time and end time of all events for a specific user and specific calendar
+
+```sh
+m365 outlook event list --userName "john.doe@contoso.com" --calendarName "Calendar" --properties "id,subject,start,end"
+```
+
+Filter events for the current signed-in user
+
+```sh
+m365 outlook event list --userId "@meId" --calendarId "AAMkAGRkZ" --filter "contains(subject, 'contoso')"
+```
+
+List all events from specific date range
+
+```sh
+m365 outlook event list --userId "@meId" --calendarId "AAMkAGRkZ" --startDateTime '2026-01-01' --endDateTime '2026-01-31'
+```
+
+## Response
+
+<Tabs>
+  <TabItem value="JSON">
+
+  ```json
+  [
+    {
+      "id": "AQMkAGRlM2Y5YTkzLWI2NzAtNDczOS05YWMyLTJhZGY2MGExMGU0MgBGAAADSG3wPE27kUeySjmT5eRT8QcAfJKVL07AC6GQ5pgAAAA==",
+      "createdDateTime": "2026-03-29T13:57:47.9194633Z",
+      "lastModifiedDateTime": "2026-03-29T13:59:48.6329479Z",
+      "changeKey": "fJKVL07sbkmIfHqjbDnRgQAC54IeWA==",
+      "categories": [],
+      "transactionId": "localevent:c95ac848-7295-ad3e-ee1e-f3832b10bf3e",
+      "originalStartTimeZone": "Greenwich Standard Time",
+      "originalEndTimeZone": "Greenwich Standard Time",
+      "iCalUId": "040000008200E00074C5B7101A82E008000000006B71750684BFDC01000000000000000010000000872F2916501A8442A7DB64D2E460E3D9",
+      "uid": "040000008200E00074C5B7101A82E008000000006B71750684BFDC01000000000000000010000000872F2916501A8442A7DB64D2E460E3D9",
+      "reminderMinutesBeforeStart": 15,
+      "isReminderOn": true,
+      "hasAttachments": false,
+      "subject": "Retro",
+      "bodyPreview": "Retrospective",
+      "importance": "normal",
+      "sensitivity": "normal",
+      "isAllDay": false,
+      "isCancelled": false,
+      "isOrganizer": true,
+      "responseRequested": true,
+      "seriesMasterId": null,
+      "showAs": "busy",
+      "type": "singleInstance",
+      "webLink": "https://outlook.office365.com/owa/?itemid=AQMkAGRlM2Y%3D%3D&exvsurl=1&path=/calendar/item",
+      "onlineMeetingUrl": null,
+      "isOnlineMeeting": false,
+      "onlineMeetingProvider": "unknown",
+      "allowNewTimeProposals": true,
+      "occurrenceId": null,
+      "isDraft": false,
+      "hideAttendees": false,
+      "responseStatus": {
+        "response": "organizer",
+        "time": "0001-01-01T00:00:00Z"
+      },
+      "body": {
+        "contentType": "html",
+        "content": "<html>\r\\\n<head>\r\\\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\r\\\n</head>\r\\\n<body>\r\\\n<div class=\"elementToProof\" style=\"font-family:Aptos,Aptos_EmbeddedFont,Aptos_MSFontService,Calibri,Helvetica,sans-serif; font-size:12pt; color:rgb(0,0,0)\">\r\\\nRetrospective</div>\r\\\n</body>\r\\\n</html>\r\\\n"
+      },
+      "start": {
+        "dateTime": "2026-03-29T16:00:00.0000000",
+        "timeZone": "UTC"
+      },
+      "end": {
+        "dateTime": "2026-03-29T18:00:00.0000000",
+        "timeZone": "UTC"
+      },
+      "location": {
+        "displayName": "",
+        "locationType": "default",
+        "uniqueIdType": "unknown",
+        "address": {},
+        "coordinates": {}
+      },
+      "locations": [],
+      "recurrence": null,
+      "attendees": [],
+      "organizer": {
+        "emailAddress": {
+          "name": "John Doe",
+          "address": "john.doe@contoso.com"
+        }
+      },
+      "onlineMeeting": null
+    }
+  ]
+  ```
+
+  </TabItem>
+  <TabItem value="Text">
+
+  ```text
+  id                                                                                                                                                        subject
+  --------------------------------------------------------------------------------------------------------------------------------------------------------  -------
+  AQMkAGRlM2Y5YTkzLWI2NzAtNDczOS05YWMyLTJhZGY2MGExMGU0MgBGAAADSG3wPE27kUeySjmT5eRT8QcAfJKVL07AC6GQ5pgAAAA==  Retro
+  ```
+
+  </TabItem>
+  <TabItem value="CSV">
+
+  ```csv
+  id,createdDateTime,lastModifiedDateTime,changeKey,transactionId,originalStartTimeZone,originalEndTimeZone,iCalUId,uid,reminderMinutesBeforeStart,isReminderOn,hasAttachments,subject,bodyPreview,importance,sensitivity,isAllDay,isCancelled,isOrganizer,responseRequested,seriesMasterId,showAs,type,webLink,onlineMeetingUrl,isOnlineMeeting,onlineMeetingProvider,allowNewTimeProposals,occurrenceId,isDraft,hideAttendees,recurrence,onlineMeeting
+  AQMkAGRlM2Y5YTkzLWI2NzAtNDczOS05YWMyLTJhZGY2MGExMGU0MgBGAAADSG3wPE27kUeySjmT5eRT8QcAfJKVL07AC6GQ5pgAAAA==,2026-03-29T13:57:47.9194633Z,2026-03-29T13:59:48.6329479Z,fJKVL07sbkmIfHqjbDnRgQAC54IeWA==,localevent:c95ac848-7295-ad3e-ee1e-f3832b10bf3e,Greenwich Standard Time,Greenwich Standard Time,040000008200E00074C5B7101A82E008000000006B71750684BFDC01000000000000000010000000872F2916501A8442A7DB64D2E460E3D9,040000008200E00074C5B7101A82E008000000006B71750684BFDC01000000000000000010000000872F2916501A8442A7DB64D2E460E3D9,15,1,0,Retro,Retrospective,normal,normal,0,0,1,1,,busy,singleInstance,https://outlook.office365.com/owa/?itemid=AQMkAGRlM2Y=1&path=/calendar/item,,0,unknown,1,,0,0,,
+  ```
+
+  </TabItem>
+  <TabItem value="Markdown">
+
+  ```md
+  # outlook event list --debug "false" --verbose "false" --userId "893f9116-e024-4bc6-8e98-54c245129485" --startDateTime "2026-03-29" --endDateTime "2026-03-31"
+
+  Date: 3/29/2026
+
+  ## AQMkAGRlM2Y5YTkzLWI2NzAtNDczOS05YWMyLTJhZGY2MGExMGU0MgBGAAADSG3wPE27kUeySjmT5eRT8QcAfJKVL07AC6GQ5pgAAAA==
+
+  Property | Value
+  ---------|-------
+  id | AQMkAGRlM2Y5YTkzLWI2NzAtNDczOS05YWMyLTJhZGY2MGExMGU0MgBGAAADSG3wPE27kUeySjmT5eRT8QcAfJKVL07AC6GQ5pgAAAA==
+  createdDateTime | 2026-03-29T13:57:47.9194633Z
+  lastModifiedDateTime | 2026-03-29T13:59:48.6329479Z
+  changeKey | fJKVL07sbkmIfHqjbDnRgQAC54IeWA==
+  transactionId | localevent:c95ac848-7295-ad3e-ee1e-f3832b10bf3e
+  originalStartTimeZone | Greenwich Standard Time
+  originalEndTimeZone | Greenwich Standard Time
+  iCalUId | 040000008200E00074C5B7101A82E008000000006B71750684BFDC01000000000000000010000000872F2916501A8442A7DB64D2E460E3D9
+  uid | 040000008200E00074C5B7101A82E008000000006B71750684BFDC01000000000000000010000000872F2916501A8442A7DB64D2E460E3D9
+  reminderMinutesBeforeStart | 15
+  isReminderOn | true
+  hasAttachments | false
+  subject | Retro
+  bodyPreview | Retrospective
+  importance | normal
+  sensitivity | normal
+  isAllDay | false
+  isCancelled | false
+  isOrganizer | true
+  responseRequested | true
+  showAs | busy
+  type | singleInstance
+  webLink | https://outlook.office365.com/owa/?itemid=AQMkAGRlM2Y5YTkzLWI2NzAtNDczOS05YWMyLTJhZGY2MGExMGU0MgBGAAADSG3wPE27kUeySjmT5eRT8QcAfJKVL07sbkmIfHqjbDnRgQAAAgENAAAAfJKVL07sbkmIfHqjbDnRgQAC6GQ5pgAAAA%3D%3D&exvsurl=1&path=/calendar/item
+  isOnlineMeeting | false
+  onlineMeetingProvider | unknown
+  allowNewTimeProposals | true
+  isDraft | false
+  hideAttendees | false
+  ```
+
+  </TabItem>
+</Tabs>

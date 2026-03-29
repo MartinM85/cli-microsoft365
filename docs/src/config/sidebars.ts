@@ -1312,6 +1312,15 @@ const sidebars: SidebarsConfig = {
           ]
         },
         {
+          event: [
+            {
+              type: 'doc',
+              label: 'event list',
+              id: 'cmd/outlook/event/event-list'
+            }
+          ]
+        },
+        {
           mail: [
             {
               type: 'doc',
