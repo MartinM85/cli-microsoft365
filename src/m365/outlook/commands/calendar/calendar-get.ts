@@ -51,8 +51,8 @@ class OutlookCalendarGetCommand extends GraphCommand {
       .refine(options => !(options.userId && options.userName), {
         error: 'Specify either userId or userName, but not both'
       })
-      .refine(options => [options.calendarGroupId, options.calendarGroupName].filter(x => x !== undefined).length !== 2, {
-        error: 'Do not specify both calendarGroupId and calendarGroupName'
+      .refine(options => !(options.calendarGroupId, options.calendarGroupName), {
+        error: 'Specify either calendarGroupId or calendarGroupName, but not both'
       });
   }
 
