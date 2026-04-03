@@ -9,13 +9,17 @@ import { pid } from '../../../../utils/pid.js';
 import { session } from '../../../../utils/session.js';
 import { sinonUtil } from '../../../../utils/sinonUtil.js';
 import commands from '../../commands.js';
-import command from './resourcenamespace-list.js';
+import command, { options } from './resourcenamespace-list.js';
+import { cli } from '../../../../cli/cli.js';
+import { CommandInfo } from '../../../../cli/CommandInfo.js';
 
 
 describe(commands.RESOURCENAMESPACE_LIST, () => {
   let log: string[];
   let logger: Logger;
   let loggerLogSpy: sinon.SinonSpy;
+  let commandInfo: CommandInfo;
+  let commandOptionsSchema: typeof options;
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
@@ -23,6 +27,8 @@ describe(commands.RESOURCENAMESPACE_LIST, () => {
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     auth.connection.active = true;
+    commandInfo = cli.getCommandInfo(command);
+    commandOptionsSchema = commandInfo.command.getSchemaToParse() as typeof options;
   });
 
   beforeEach(() => {
@@ -64,6 +70,16 @@ describe(commands.RESOURCENAMESPACE_LIST, () => {
     assert.deepStrictEqual(command.defaultProperties(), ['id', 'name']);
   });
 
+  it('passes validation with no options', () => {
+    const actual = commandOptionsSchema.safeParse({});
+    assert.strictEqual(actual.success, true);
+  });
+
+  it('fails validation with unknown options', () => {
+    const actual = commandOptionsSchema.safeParse({ option: "value" });
+    assert.strictEqual(actual.success, false);
+  });
+
   it(`should get a list of resource namespaces`, async () => {
     sinon.stub(request, 'get').callsFake(async (opts) => {
       if (opts.url === `https://graph.microsoft.com/beta/roleManagement/directory/resourceNamespaces`) {
@@ -85,7 +101,7 @@ describe(commands.RESOURCENAMESPACE_LIST, () => {
     });
 
     await command.action(logger, {
-      options: { verbose: true }
+      options: commandOptionsSchema.parse({ verbose: true })
     });
 
     assert(
@@ -111,7 +127,7 @@ describe(commands.RESOURCENAMESPACE_LIST, () => {
     });
 
     await assert.rejects(
-      command.action(logger, { options: {} } as any),
+      command.action(logger, { options: commandOptionsSchema.parse({}) }),
       new CommandError('An error has occurred')
     );
   });
