@@ -10,12 +10,16 @@ import { pid } from '../../../../utils/pid.js';
 import { session } from '../../../../utils/session.js';
 import { sinonUtil } from '../../../../utils/sinonUtil.js';
 import commands from '../../commands.js';
-import command from './connection-list.js';
+import command, { options } from './connection-list.js';
+import { CommandInfo } from '../../../../cli/CommandInfo.js';
+import { cli } from '../../../../cli/cli.js';
 
 describe(commands.CONNECTION_LIST, () => {
   let log: string[];
   let logger: Logger;
   let loggerLogSpy: sinon.SinonSpy;
+  let commandInfo: CommandInfo;
+  let commandOptionsSchema: typeof options;
 
   const externalConnections: { value: ExternalConnectors.ExternalConnection[] } = {
     value: [
@@ -39,6 +43,8 @@ describe(commands.CONNECTION_LIST, () => {
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     auth.connection.active = true;
+    commandInfo = cli.getCommandInfo(command);
+    commandOptionsSchema = commandInfo.command.getSchemaToParse() as typeof options;
   });
 
   beforeEach(() => {
@@ -85,14 +91,23 @@ describe(commands.CONNECTION_LIST, () => {
     assert.deepStrictEqual(command.defaultProperties(), ['id', 'name', 'state']);
   });
 
+  it('passes validation with no options', () => {
+    const actual = commandOptionsSchema.safeParse({});
+    assert.strictEqual(actual.success, true);
+  });
+
+  it('fails validation with unknown options', () => {
+    const actual = commandOptionsSchema.safeParse({ option: "value" });
+    assert.strictEqual(actual.success, false);
+  });
+
   it('correctly handles error', async () => {
     sinon.stub(request, 'get').callsFake(() => {
       throw 'An error has occurred';
     });
 
     await assert.rejects(command.action(logger, {
-      options: {
-      }
+      options: commandOptionsSchema.parse({})
     }), new CommandError('An error has occurred'));
   });
 
@@ -105,7 +120,7 @@ describe(commands.CONNECTION_LIST, () => {
       throw 'Invalid request';
     });
 
-    await command.action(logger, { options: { debug: true } } as any);
+    await command.action(logger, { options: commandOptionsSchema.parse({ debug: true }) });
     assert(loggerLogSpy.calledWith(externalConnections.value));
   });
 });
