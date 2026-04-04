@@ -51,7 +51,7 @@ class OutlookCalendarRemoveCommand extends GraphCommand {
       .refine(options => [options.id, options.name].filter(x => x !== undefined).length === 1, {
         error: 'Specify either id or name, but not both'
       })
-      .refine(options => !(options.userId && options.userName), {
+      .refine(options => [options.userId, options.userName].filter(x => x !== undefined).length === 1, {
         error: 'Specify either userId or userName, but not both'
       })
       .refine(options => [options.calendarGroupId, options.calendarGroupName].filter(x => x !== undefined).length !== 2, {
@@ -61,10 +61,6 @@ class OutlookCalendarRemoveCommand extends GraphCommand {
 
   public async commandAction(logger: Logger, args: CommandArgs): Promise<void> {
     const removeCalendar = async (): Promise<void> => {
-      if (this.verbose) {
-        await logger.logToStderr('Getting calendar...');
-      }
-
       try {
         const userIdentifier = args.options.userId ?? args.options.userName;
         let calendarGroupId = args.options.calendarGroupId;
@@ -78,6 +74,10 @@ class OutlookCalendarRemoveCommand extends GraphCommand {
         if (args.options.name) {
           const result = await calendar.getUserCalendarByName(userIdentifier!, args.options.name!, calendarGroupId, 'id');
           calendarId = result.id;
+        }
+
+        if (args.options.verbose) {
+          await logger.logToStderr(`Removing calendar with ID ${calendarId}...`);
         }
 
         let url = `${this.resource}/v1.0/users('${userIdentifier}')/${calendarGroupId ? `calendarGroups/${calendarGroupId}/` : ''}calendars/${calendarId}`;

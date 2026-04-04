@@ -125,6 +125,13 @@ describe(commands.CALENDAR_REMOVE, () => {
     assert.notStrictEqual(actual.success, true);
   });
 
+  it('fails validation if neither userId nor userName is specified', () => {
+    const actual = commandOptionsSchema.safeParse({
+      id: calendarId
+    });
+    assert.notStrictEqual(actual.success, true);
+  });
+
   it('fails validation if both calendarGroupId and calendarGroupName is specified', () => {
     const actual = commandOptionsSchema.safeParse({
       id: calendarId,
