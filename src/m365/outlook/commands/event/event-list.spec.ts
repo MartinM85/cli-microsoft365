@@ -219,11 +219,6 @@ describe(commands.EVENT_LIST, () => {
     assert.deepStrictEqual(command.defaultProperties(), ['id', 'subject']);
   });
 
-  it('passes validation with no options', () => {
-    const actual = commandOptionsSchema.safeParse({});
-    assert.strictEqual(actual.success, true);
-  });
-
   it('passes validation with userId', () => {
     const actual = commandOptionsSchema.safeParse({ userId });
     assert.strictEqual(actual.success, true);
@@ -236,6 +231,13 @@ describe(commands.EVENT_LIST, () => {
 
   it('fails validation if both userId and userName are specified', () => {
     const actual = commandOptionsSchema.safeParse({ userId, userName });
+    assert.notStrictEqual(actual.success, true);
+  });
+
+  it('fails validation if neither userId nor userName is specified', () => {
+    const actual = commandOptionsSchema.safeParse({
+      id: calendarId
+    });
     assert.notStrictEqual(actual.success, true);
   });
 
@@ -357,7 +359,7 @@ describe(commands.EVENT_LIST, () => {
   it('retrieves limited properties of events till the specified date for the user specified by id from a calendar specified by name', async () => {
     sinon.stub(calendar, 'getUserCalendarByName').resolves({ id: calendarId });
     sinon.stub(request, 'get').callsFake(async (opts) => {
-      if (opts.url === `https://graph.microsoft.com/v1.0/users('${userId}')/calendars/${calendarId}/events?$select=id,subject,start,end&$filter=end/dateTime le '2026-03-31T00:00:00Z'`) {
+      if (opts.url === `https://graph.microsoft.com/v1.0/users('${userId}')/calendars/${calendarId}/events?$select=id,subject,start,end&$filter=start/dateTime lt '2026-03-31T00:00:00Z'`) {
         return {
           value: eventsResponse
         };
@@ -381,7 +383,7 @@ describe(commands.EVENT_LIST, () => {
   it('retrieves events in specific date range for the user specified by id', async () => {
     sinon.stub(calendar, 'getUserCalendarById').resolves({ id: calendarId });
     sinon.stub(request, 'get').callsFake(async (opts) => {
-      if (opts.url === `https://graph.microsoft.com/v1.0/users('${userId}')/events?$expand=attachments($select=id)&$filter=start/dateTime ge '2026-03-29T00:00:00Z' and end/dateTime le '2026-03-31T00:00:00Z'`) {
+      if (opts.url === `https://graph.microsoft.com/v1.0/users('${userId}')/events?$expand=attachments($select=id)&$filter=start/dateTime ge '2026-03-29T00:00:00Z' and start/dateTime lt '2026-03-31T00:00:00Z'`) {
         return {
           value: eventsResponse
         };
@@ -407,7 +409,7 @@ describe(commands.EVENT_LIST, () => {
     sinon.stub(request, 'get').rejects({ error: { error: { message: errorMessage } } });
 
     await assert.rejects(
-      command.action(logger, { options: commandOptionsSchema.parse({}) }),
+      command.action(logger, { options: commandOptionsSchema.parse({ userId: userId }) }),
       new CommandError(errorMessage)
     );
   });

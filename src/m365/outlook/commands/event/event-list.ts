@@ -51,8 +51,8 @@ class OutlookEventListCommand extends GraphCommand {
 
   public getRefinedSchema(schema: typeof options): z.ZodObject<any> | undefined {
     return schema
-      .refine(options => !(options.userId && options.userName), {
-        error: 'Specify either userId or userName, but not both.'
+      .refine(options => [options.userId, options.userName].filter(x => x !== undefined).length === 1, {
+        error: 'Specify either userId or userName, but not both'
       })
       .refine(options => !(options.calendarId && options.calendarName), {
         error: 'Specify either calendarId or calendarName, but not both.'
@@ -65,6 +65,10 @@ class OutlookEventListCommand extends GraphCommand {
 
   public async commandAction(logger: Logger, args: CommandArgs): Promise<void> {
     try {
+      if (this.verbose) {
+        await logger.logToStderr('Getting a list of the events...');
+      }
+
       let events;
       const endpoint = await this.getRequestUrl(args.options);
       if (args.options.timeZone) {
@@ -72,7 +76,7 @@ class OutlookEventListCommand extends GraphCommand {
           url: endpoint,
           headers: {
             accept: 'application/json;odata.metadata=none',
-            Prefer: `outlook.timezone = "${args.options.timeZone}"`
+            Prefer: `outlook.timezone="${args.options.timeZone}"`
           },
           responseType: 'json'
         };
@@ -114,7 +118,7 @@ class OutlookEventListCommand extends GraphCommand {
         filter += `${filter ? ' and ' : ''}start/dateTime ge '${options.startDateTime}'`;
       }
       if (options.endDateTime) {
-        filter += `${filter ? ' and ' : ''}end/dateTime le '${options.endDateTime}'`;
+        filter += `${filter ? ' and ' : ''}start/dateTime lt '${options.endDateTime}'`;
       }
       queryParameters.push(`$filter=${filter}`);
     }
