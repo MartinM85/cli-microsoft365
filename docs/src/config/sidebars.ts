@@ -1309,7 +1309,8 @@ const sidebars: SidebarsConfig = {
               label: 'calendar add',
               id: 'cmd/outlook/calendar/calendar-add'
             }
-          ],          calendargroup: [
+          ],
+          calendargroup: [
             {
               type: 'doc',
               label: 'calendargroup list',

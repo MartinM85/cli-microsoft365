@@ -122,6 +122,16 @@ describe(commands.CALENDAR_ADD, () => {
     assert.notStrictEqual(actual.success, true);
   });
 
+  it('fails validation if both calendarGroupId and calendarGroupName is specified', () => {
+    const actual = commandOptionsSchema.safeParse({
+      userId: userId,
+      name: calendarName,
+      calendarGroupId: calendarGroupId,
+      calendarGroupName: calendarGroupName
+    });
+    assert.notStrictEqual(actual.success, true);
+  });
+
   it('fails validation if color is invalid', () => {
     const actual = commandOptionsSchema.safeParse({
       userId: userId,

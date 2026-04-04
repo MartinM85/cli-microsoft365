@@ -8,6 +8,7 @@ export default {
     'https://graph.microsoft.com/AuditLog.Read.All',
     'https://graph.microsoft.com/Bookings.Read.All',
     'https://graph.microsoft.com/Calendars.Read',
+    'https://graph.microsoft.com/Calendars.ReadWrite',
     'https://graph.microsoft.com/ChannelMember.ReadWrite.All',
     'https://graph.microsoft.com/ChannelMessage.Read.All',
     'https://graph.microsoft.com/ChannelMessage.ReadWrite',

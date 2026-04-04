@@ -21,7 +21,7 @@ export const options = z.strictObject({
   name: z.string(),
   calendarGroupId: z.string().optional(),
   calendarGroupName: z.string().optional(),
-  color: z.enum(['auto', 'lightBlue', 'lightGreen', 'lightOrange', 'lightGray', 'lightYellow', 'lightTeal', 'lightPink', 'lightBrown', 'maxColor']).optional().default('auto'),
+  color: z.enum(['auto', 'lightBlue', 'lightGreen', 'lightOrange', 'lightGray', 'lightYellow', 'lightTeal', 'lightPink', 'lightBrown', 'lightRed', 'maxColor']).optional().default('auto'),
   defaultOnlineMeetingProvider: z.enum(['none', 'teamsForBusiness']).optional().default('teamsForBusiness'),
   default: z.boolean().optional()
 });
@@ -49,12 +49,14 @@ class OutlookCalendarAddCommand extends GraphCommand {
     return schema
       .refine(options => !(options.userId && options.userName), {
         error: 'Specify either userId or userName, but not both'
+      })
+      .refine(options => !(options.calendarGroupId && options.calendarGroupName), {
+        error: 'Specify either calendarGroupId or calendarGroupName, but not both'
       });
   }
 
   public async commandAction(logger: Logger, args: CommandArgs): Promise<void> {
     try {
-
       const userIdentifier = args.options.userId ?? args.options.userName;
 
       let requestUrl = `${this.resource}/v1.0/users('${userIdentifier}')/`;
