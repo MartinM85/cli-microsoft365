@@ -98,6 +98,7 @@ interface Options extends GlobalOptions {
   CommentsOnListItemsDisabled?: boolean;
   EnableAzureADB2BIntegration?: boolean;
   SyncAadB2BManagementPolicy?: boolean;
+  AllowWebPropertyBagUpdateWhenDenyAddAndCustomizePagesIsEnabled?: boolean;
 }
 
 class SpoTenantSettingsSetCommand extends SpoCommand {
@@ -156,7 +157,8 @@ class SpoTenantSettingsSetCommand extends SpoCommand {
     'DisableCustomAppAuthentication',
     'CommentsOnListItemsDisabled',
     'EnableAzureADB2BIntegration',
-    'SyncAadB2BManagementPolicy'
+    'SyncAadB2BManagementPolicy',
+    'AllowWebPropertyBagUpdateWhenDenyAddAndCustomizePagesIsEnabled'
   ];
 
   public get name(): string {
@@ -545,6 +547,10 @@ class SpoTenantSettingsSetCommand extends SpoCommand {
       },
       {
         option: '--SyncAadB2BManagementPolicy [SyncAadB2BManagementPolicy]',
+        autocomplete: ['true', 'false']
+      },
+      {
+        option: '--AllowWebPropertyBagUpdateWhenDenyAddAndCustomizePagesIsEnabled [AllowWebPropertyBagUpdateWhenDenyAddAndCustomizePagesIsEnabled]',
         autocomplete: ['true', 'false']
       }
     );

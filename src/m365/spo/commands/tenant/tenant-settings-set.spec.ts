@@ -320,4 +320,16 @@ describe(commands.TENANT_SETTINGS_SET, () => {
     });
     assert.strictEqual(loggerStderrLogSpy.calledWith(chalk.yellow("WARNING: Make sure to also enable the Microsoft Entra one-time passcode authentication preview. If it is not enabled then SharePoint will not use Microsoft Entra B2B even if EnableAzureADB2BIntegration is set to true. Learn more at http://aka.ms/spo-b2b-integration.")), true);
   });
+
+  it('sets AllowWebPropertyBagUpdateWhenDenyAddAndCustomizePagesIsEnabled to true', async () => {
+    const stubRequest = defaultRequestsSuccessStub();
+
+    await command.action(logger, {
+      options: {
+        AllowWebPropertyBagUpdateWhenDenyAddAndCustomizePagesIsEnabled: true
+      }
+    });
+
+    assert.strictEqual(stubRequest.lastCall.args[0].data, `<Request AddExpandoFieldTypeSuffix="true" SchemaVersion="15.0.0.0" LibraryVersion="16.0.0.0" ApplicationName="${config.applicationName}" xmlns="http://schemas.microsoft.com/sharepoint/clientquery/2009"><Actions><SetProperty Id="42" ObjectPathId="7" Name="AllowWebPropertyBagUpdateWhenDenyAddAndCustomizePagesIsEnabled"><Parameter Type="String">true</Parameter></SetProperty></Actions><ObjectPaths><Identity Id="7" Name="6648899e-a042-6000-ee90-5bfa05d08b79|908bed80-a04a-4433-b4a0-883d9847d11d:ea1787c6-7ce2-4e71-be47-5e0deb30f9ee&#xA;Tenant" /></ObjectPaths></Request>`);
+  });
 });
