@@ -3734,4 +3734,72 @@ describe('utils/spo', () => {
       assert.strictEqual(result.length, 0);
     });
   });
+
+  describe('getEffectiveBasePermissions', () => {
+    it('should return base permissions when response is valid', async () => {
+      sinon.stub(request, 'post').resolves(JSON.stringify([
+        {
+          "SchemaVersion": "15.0.0.0",
+          "LibraryVersion": "16.0.7514.1204",
+          "ErrorInfo": null,
+          "TraceCorrelationId": "2d64579e-00e9-5000-71ce-fdad238b27fc"
+        }, 7, {
+          "_ObjectType_": "SP.Web",
+          "_ObjectIdentity_": "2d64579e-00e9-5000-71ce-fdad238b27fc|740c6a0b-85e2-48a0-a494-e0f1759d4aa7:site:692102df-335d-41e2-aa44-425b626037ea:web:f7fb12c3-ca68-4060-b1b0-c27a6bfffeb2",
+          "EffectiveBasePermissions": {
+            "_ObjectType_": "SP.BasePermissions",
+            "High": 2147483647,
+            "Low": 4294967295
+          }
+        }
+      ]));
+
+      const result = await spo.getEffectiveBasePermissions('objectIdentity', 'https://contoso.sharepoint.com', 'formDigest', logger, false);
+      assert.strictEqual(result.high, 2147483647);
+      assert.strictEqual(result.low, 4294967295);
+    });
+
+    it('should throw error when response contains ErrorInfo', async () => {
+      sinon.stub(request, 'post').resolves(JSON.stringify([{ "ErrorInfo": { "ErrorMessage": "getEffectiveBasePermissions error" } }]));
+
+      await assert.rejects(spo.getEffectiveBasePermissions('objectIdentity', 'https://contoso.sharepoint.com', 'formDigest', logger, false),
+        (err: any) => err === 'getEffectiveBasePermissions error');
+    });
+
+    it('should throw ClientSvc unknown error when ErrorMessage is empty', async () => {
+      sinon.stub(request, 'post').resolves(JSON.stringify([{ "ErrorInfo": { "ErrorMessage": "" } }]));
+
+      await assert.rejects(spo.getEffectiveBasePermissions('objectIdentity', 'https://contoso.sharepoint.com', 'formDigest', logger, false),
+        (err: any) => err === 'ClientSvc unknown error');
+    });
+
+    it('should throw error when EffectiveBasePermissions not found', async () => {
+      sinon.stub(request, 'post').resolves('[{}]');
+
+      await assert.rejects(spo.getEffectiveBasePermissions('objectIdentity', 'https://contoso.sharepoint.com', 'formDigest', logger, false),
+        (err: any) => err === 'Cannot proceed. EffectiveBasePermissions not found');
+    });
+
+    it('should log debug message when debug is true', async () => {
+      sinon.stub(request, 'post').resolves(JSON.stringify([
+        {
+          "SchemaVersion": "15.0.0.0",
+          "LibraryVersion": "16.0.7514.1204",
+          "ErrorInfo": null,
+          "TraceCorrelationId": "2d64579e-00e9-5000-71ce-fdad238b27fc"
+        }, 7, {
+          "_ObjectType_": "SP.Web",
+          "_ObjectIdentity_": "2d64579e-00e9-5000-71ce-fdad238b27fc|740c6a0b-85e2-48a0-a494-e0f1759d4aa7:site:692102df-335d-41e2-aa44-425b626037ea:web:f7fb12c3-ca68-4060-b1b0-c27a6bfffeb2",
+          "EffectiveBasePermissions": {
+            "_ObjectType_": "SP.BasePermissions",
+            "High": 2147483647,
+            "Low": 4294967295
+          }
+        }
+      ]));
+
+      await spo.getEffectiveBasePermissions('objectIdentity', 'https://contoso.sharepoint.com', 'formDigest', logger, true);
+      assert(log.some(l => l === 'Attempt to get the web EffectiveBasePermissions'));
+    });
+  });
 });

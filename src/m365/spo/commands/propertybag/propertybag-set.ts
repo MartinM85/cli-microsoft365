@@ -72,14 +72,6 @@ class SpoPropertyBagSetCommand extends SpoPropertyBagBaseCommand {
       let identityResp = await spo.getCurrentWebIdentity(args.options.webUrl, this.formDigestValue);
       const webIdentityResp = identityResp;
 
-      // Check if web no script enabled or not
-      // Cannot set property bag value if no script is enabled
-      const isNoScriptSite = await this.isNoScriptSite(identityResp, args.options, logger);
-
-      if (isNoScriptSite) {
-        throw 'Site has NoScript enabled, and setting property bag values is not supported';
-      }
-
       const opts: Options = args.options;
       if (opts.folder) {
         // get the folder guid instead of the web guid
@@ -89,16 +81,16 @@ class SpoPropertyBagSetCommand extends SpoPropertyBagBaseCommand {
       await this.setProperty(identityResp, args.options, logger);
     }
     catch (err: any) {
+      if (err.toString().indexOf('E_ACCESSDENIED') > -1) {
+        await logger.logToStderr('Tip: If a site has NoScript enabled, setting the property bag value may result in exceptions.');
+      }
+
       this.handleRejectedPromise(err);
     }
   }
 
   private setProperty(identityResp: IdentityResponse, options: Options, logger: Logger): Promise<any> {
     return SpoPropertyBagBaseCommand.setProperty(options.key, options.value, options.webUrl, this.formDigestValue, identityResp, logger, this.debug, options.folder);
-  }
-
-  private isNoScriptSite(webIdentityResp: IdentityResponse, options: Options, logger: Logger): Promise<boolean> {
-    return SpoPropertyBagBaseCommand.isNoScriptSite(options.webUrl, this.formDigestValue, webIdentityResp, logger, this.debug);
   }
 }
 

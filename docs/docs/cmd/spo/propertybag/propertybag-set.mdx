@@ -30,7 +30,7 @@ m365 spo propertybag set [options]
 
 ## Remarks
 
-SharePoint Online supports setting property bag values only in classic sites. On modern sites you will get a _Site has NoScript enabled, and setting property bag values is not supported_ error.
+If a site has NoScript enabled, setting property bag values may result in an _Access is denied_ error. To resolve this, you can configure a tenant-wide property to allow property bag updates on NoScript sites.
 
 ## Examples
 
