@@ -72,7 +72,7 @@ describe(commands.OPTION_LIST, () => {
     sinon.stub(fs, 'existsSync').callsFake(_ => true);
     sinon.stub(fs, 'readFileSync').callsFake(_ => { throw new Error('An error has occurred'); });
 
-    await assert.rejects(command.action(logger, { options: { debug: true } }), new CommandError(`Error reading .m365rc.json: Error: An error has occurred. Please retrieve context options from .m365rc.json manually.`));
+    await assert.rejects(command.action(logger, { options: commandOptionsSchema.parse({ debug: true }) }), new CommandError(`Error reading .m365rc.json: Error: An error has occurred. Please retrieve context options from .m365rc.json manually.`));
   });
 
   it(`retrieves context info options from the existing .m365rc.json file`, async () => {
