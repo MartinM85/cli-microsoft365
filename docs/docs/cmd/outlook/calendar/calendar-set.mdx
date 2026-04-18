@@ -1,0 +1,178 @@
+import Global from '../../_global.mdx';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# outlook calendar set
+
+Updates a calendar for a user.
+
+## Usage
+
+```sh
+m365 outlook calendar set [options]
+```
+
+## Options
+
+```md definition-list
+`-i, --id <id>`
+: ID of the calendar.
+
+`-n, --name [name]`
+: New name of the calendar.
+
+`--userId [userId]`
+: ID of the user. Specify either `userId` or `userName`, but not both.
+
+`--userName [userName]`
+: UPN of the user. Specify either `userId` or `userName`, but not both.
+
+`--calendarGroupId [calendarGroupId]`
+: ID of the calendar group where the calendar belongs. Specify either `calendarGroupId` or `calendarGroupName`, but not both.
+
+`--calendarGroupName [calendarGroupName]`
+: Name of the calendar group where the calendar belongs. Specify either `calendarGroupId` or `calendarGroupName`, but not both.
+
+`--color [color]`
+: The color of the calendar in the UI. Allowed values: `auto`, `lightBlue`, `lightGreen`, `lightOrange`, `lightGray`, `lightYellow`, `lightTeal`, `lightPink`, `lightBrown`, `lightRed`, `maxColor`.
+
+`--isDefault [isDefault]`
+: Mark whether the calendar is the user's default calendar. Allowed values: `true`, `false`.
+```
+
+<Global />
+
+## Permissions
+
+<Tabs>
+  <TabItem value="Delegated">
+
+  | Resource        | Permissions                                     |
+  |-----------------|-------------------------------------------------|
+  | Microsoft Graph | Calendars.ReadWrite, Calendars.ReadWrite.Shared |
+
+  </TabItem>
+  <TabItem value="Application">
+
+  | Resource        | Permissions         |
+  |-----------------|---------------------|
+  | Microsoft Graph | Calendars.ReadWrite |
+
+  </TabItem>
+</Tabs>
+
+:::note
+
+When using delegated permissions, specifying `userId` or `userName` for a different user requires the `Calendars.ReadWrite.Shared` scope. When the specified user matches the signed-in user, no shared scope is needed.
+
+:::
+
+## Examples
+
+Update the name of a calendar for the signed-in user.
+
+```sh
+m365 outlook calendar set --id 'AAMkAGI2TQpZAAA=' --name 'Team planning'
+```
+
+Change the color of a specific calendar for a user by UPN.
+
+```sh
+m365 outlook calendar set --id 'AAMkAGI2TQpZAAA=' --userName 'john.doe@contoso.com' --color 'lightGreen'
+```
+
+Mark a calendar as the default calendar for a user.
+
+```sh
+m365 outlook calendar set --id 'AAMkAGI2TQpZAAA=' --userId 'b743445a-112c-4fda-9afd-05943f9c7b36' --isDefault true
+```
+
+Update a calendar within a specific calendar group by name.
+
+```sh
+m365 outlook calendar set --id 'AAMkAGI2TQpZAAA=' --name 'Team planning' --calendarGroupName 'My Calendars'
+```
+
+## Response
+
+<Tabs>
+  <TabItem value="JSON">
+
+  ```json
+  {
+    "id": "AAMkAGI2TQpZAAA=",
+    "name": "Team planning",
+    "color": "auto",
+    "hexColor": "",
+    "isDefaultCalendar": false,
+    "changeKey": "DxYSthXJXEWwAQSYQnXvIgAAIxGttg==",
+    "canShare": true,
+    "canViewPrivateItems": true,
+    "canEdit": true,
+    "allowedOnlineMeetingProviders": [
+      "teamsForBusiness"
+    ],
+    "defaultOnlineMeetingProvider": "teamsForBusiness",
+    "isTallyingResponses": true,
+    "isRemovable": false,
+    "owner": {
+      "name": "John Doe",
+      "address": "john.doe@contoso.com"
+    }
+  }
+  ```
+
+  </TabItem>
+  <TabItem value="Text">
+
+  ```text
+  allowedOnlineMeetingProviders: ["teamsForBusiness"]
+  canEdit                      : true
+  canShare                     : true
+  canViewPrivateItems          : true
+  changeKey                    : DxYSthXJXEWwAQSYQnXvIgAAIxGttg==
+  color                        : auto
+  defaultOnlineMeetingProvider : teamsForBusiness
+  hexColor                     :
+  id                           : AAMkAGI2TQpZAAA=
+  isDefaultCalendar            : false
+  isRemovable                  : false
+  isTallyingResponses          : true
+  name                         : Team planning
+  owner                        : {"name":"John Doe","address":"john.doe@contoso.com"}
+  ```
+
+  </TabItem>
+  <TabItem value="CSV">
+
+  ```csv
+  id,name,color,hexColor,isDefaultCalendar,changeKey,canShare,canViewPrivateItems,canEdit,defaultOnlineMeetingProvider,isTallyingResponses,isRemovable
+  AAMkAGI2TQpZAAA=,Team planning,auto,,false,DxYSthXJXEWwAQSYQnXvIgAAIxGttg==,true,true,true,teamsForBusiness,true,false
+  ```
+
+  </TabItem>
+  <TabItem value="Markdown">
+
+  ```md
+  # outlook calendar set
+
+  Date: 4/2/2026
+
+  Property | Value
+  ---------|-------
+  id | AAMkAGI2TQpZAAA=
+  name | Team planning
+  color | auto
+  hexColor |
+  isDefaultCalendar | false
+  changeKey | DxYSthXJXEWwAQSYQnXvIgAAIxGttg==
+  canShare | true
+  canViewPrivateItems | true
+  canEdit | true
+  defaultOnlineMeetingProvider | teamsForBusiness
+  isTallyingResponses | true
+  isRemovable | false
+  ```
+
+  </TabItem>
+</Tabs>
