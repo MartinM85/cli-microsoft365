@@ -101,7 +101,7 @@ describe(commands.RESOURCENAMESPACE_LIST, () => {
     });
 
     await command.action(logger, {
-      options: commandOptionsSchema.parse({ verbose: true })
+      options: { verbose: true }
     });
 
     assert(
@@ -127,7 +127,7 @@ describe(commands.RESOURCENAMESPACE_LIST, () => {
     });
 
     await assert.rejects(
-      command.action(logger, { options: commandOptionsSchema.parse({}) }),
+      command.action(logger, { options: {} }),
       new CommandError('An error has occurred')
     );
   });
