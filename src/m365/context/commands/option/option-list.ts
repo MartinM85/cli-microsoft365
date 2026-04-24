@@ -1,11 +1,10 @@
 import fs from 'fs';
+import { z } from 'zod';
 import { Logger } from '../../../../cli/Logger.js';
-import { CommandError } from '../../../../Command.js';
+import { CommandError, globalOptionsZod } from '../../../../Command.js';
 import ContextCommand from '../../../base/ContextCommand.js';
 import { M365RcJson } from '../../../base/M365RcJson.js';
 import commands from '../../commands.js';
-import { z } from 'zod';
-import { globalOptionsZod } from '../../../../Command.js';
 
 export const options = z.strictObject({ ...globalOptionsZod.shape });
 
