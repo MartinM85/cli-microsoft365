@@ -1,9 +1,12 @@
 import fs from 'fs';
+import { z } from 'zod';
 import { Logger } from '../../../../cli/Logger.js';
-import { CommandError } from '../../../../Command.js';
+import { CommandError, globalOptionsZod } from '../../../../Command.js';
 import ContextCommand from '../../../base/ContextCommand.js';
 import { M365RcJson } from '../../../base/M365RcJson.js';
 import commands from '../../commands.js';
+
+export const options = z.strictObject({ ...globalOptionsZod.shape });
 
 class ContextOptionListCommand extends ContextCommand {
   public get name(): string {
@@ -12,6 +15,10 @@ class ContextOptionListCommand extends ContextCommand {
 
   public get description(): string {
     return 'List all options added to the context';
+  }
+
+  public get schema(): z.ZodType | undefined {
+    return options;
   }
 
   public async commandAction(logger: Logger): Promise<void> {
