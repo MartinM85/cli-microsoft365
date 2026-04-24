@@ -16,6 +16,7 @@ interface Options extends GlobalOptions {
   clientSideComponentId: string;
   description?: string;
   clientSideComponentProperties?: string;
+  hostProperties?: string;
   scope?: string;
 }
 
@@ -56,6 +57,9 @@ class SpoApplicationCustomizerAddCommand extends SpoCommand {
         option: '--clientSideComponentProperties [clientSideComponentProperties]'
       },
       {
+        option: '--hostProperties [hostProperties]'
+      },
+      {
         option: '-s, --scope [scope]', autocomplete: SpoApplicationCustomizerAddCommand.scopes
       }
     );
@@ -66,6 +70,7 @@ class SpoApplicationCustomizerAddCommand extends SpoCommand {
       Object.assign(this.telemetryProperties, {
         description: typeof args.options.description !== 'undefined',
         clientSideComponentProperties: typeof args.options.clientSideComponentProperties !== 'undefined',
+        hostProperties: typeof args.options.hostProperties !== 'undefined',
         scope: typeof args.options.scope !== 'undefined'
       });
     });
@@ -94,6 +99,15 @@ class SpoApplicationCustomizerAddCommand extends SpoCommand {
           }
         }
 
+        if (args.options.hostProperties) {
+          try {
+            JSON.parse(args.options.hostProperties);
+          }
+          catch (e) {
+            return `An error has occurred while parsing hostProperties: ${e}`;
+          }
+        }
+
         if (args.options.scope && SpoApplicationCustomizerAddCommand.scopes.indexOf(args.options.scope) < 0) {
           return `${args.options.scope} is not a valid value for allowedMembers. Valid values are ${SpoApplicationCustomizerAddCommand.scopes.join(', ')}`;
         }
@@ -113,7 +127,8 @@ class SpoApplicationCustomizerAddCommand extends SpoCommand {
       Name: args.options.title,
       Description: args.options.description,
       Location: 'ClientSideExtension.ApplicationCustomizer',
-      ClientSideComponentId: args.options.clientSideComponentId
+      ClientSideComponentId: args.options.clientSideComponentId,
+      HostProperties: args.options.hostProperties || ''
     };
 
     if (args.options.clientSideComponentProperties) {

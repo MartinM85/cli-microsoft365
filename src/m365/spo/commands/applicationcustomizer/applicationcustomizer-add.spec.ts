@@ -95,12 +95,8 @@ describe(commands.APPLICATIONCUSTOMIZER_ADD, () => {
   });
 
   it('adds the application customizer to a specific site without specifying clientSideComponentProperties', async () => {
-    sinon.stub(request, 'post').callsFake(async (opts) => {
-      if (opts.url === 'https://contoso.sharepoint.com/_api/Web/UserCustomActions'
-        && opts.data['Location'] === 'ClientSideExtension.ApplicationCustomizer'
-        && opts.data['ClientSideComponentId'] === clientSideComponentId
-        && opts.data['Name'] === title
-        && opts.data['ClientSideComponentProperties'] === undefined) {
+    const postStub = sinon.stub(request, 'post').callsFake(async (opts) => {
+      if (opts.url === 'https://contoso.sharepoint.com/_api/Web/UserCustomActions') {
         return;
       }
 
@@ -108,16 +104,20 @@ describe(commands.APPLICATIONCUSTOMIZER_ADD, () => {
     });
 
     await command.action(logger, { options: { webUrl: webUrl, title: title, clientSideComponentId: clientSideComponentId, scope: 'Web' } });
+    assert.deepStrictEqual(postStub.firstCall.args[0].data, {
+      Title: title,
+      Name: title,
+      Description: undefined,
+      Location: 'ClientSideExtension.ApplicationCustomizer',
+      ClientSideComponentId: clientSideComponentId,
+      HostProperties: ''
+    });
     assert(loggerLogToStderrSpy.notCalled);
   });
 
   it('adds the application customizer to a specific site while specifying clientSideComponentProperties', async () => {
-    sinon.stub(request, 'post').callsFake(async (opts) => {
-      if (opts.url === 'https://contoso.sharepoint.com/_api/Site/UserCustomActions'
-        && opts.data['Location'] === 'ClientSideExtension.ApplicationCustomizer'
-        && opts.data['ClientSideComponentId'] === clientSideComponentId
-        && opts.data['ClientSideComponentProperties'] === clientSideComponentProperties
-        && opts.data['Name'] === title) {
+    const postStub = sinon.stub(request, 'post').callsFake(async (opts) => {
+      if (opts.url === 'https://contoso.sharepoint.com/_api/Site/UserCustomActions') {
         return customActionAddResponse;
       }
 
@@ -125,6 +125,36 @@ describe(commands.APPLICATIONCUSTOMIZER_ADD, () => {
     });
 
     await command.action(logger, { options: { webUrl: webUrl, title: title, clientSideComponentId: clientSideComponentId, description: description, clientSideComponentProperties: clientSideComponentProperties, verbose: true } });
+    assert.deepStrictEqual(postStub.firstCall.args[0].data, {
+      Title: title,
+      Name: title,
+      Description: description,
+      Location: 'ClientSideExtension.ApplicationCustomizer',
+      ClientSideComponentId: clientSideComponentId,
+      ClientSideComponentProperties: clientSideComponentProperties,
+      HostProperties: ''
+    });
+    assert(loggerLogToStderrSpy.called);
+  });
+
+  it('adds the application customizer to a specific site while specifying hostProperties', async () => {
+    const postStub = sinon.stub(request, 'post').callsFake(async (opts) => {
+      if (opts.url === 'https://contoso.sharepoint.com/_api/Site/UserCustomActions') {
+        return customActionAddResponse;
+      }
+
+      throw customActionError;
+    });
+
+    await command.action(logger, { options: { webUrl: webUrl, title: title, clientSideComponentId: clientSideComponentId, description: description, hostProperties: clientSideComponentProperties, verbose: true } });
+    assert.deepStrictEqual(postStub.firstCall.args[0].data, {
+      Title: title,
+      Name: title,
+      Description: description,
+      Location: 'ClientSideExtension.ApplicationCustomizer',
+      ClientSideComponentId: clientSideComponentId,
+      HostProperties: clientSideComponentProperties
+    });
     assert(loggerLogToStderrSpy.called);
   });
 
@@ -148,8 +178,13 @@ describe(commands.APPLICATIONCUSTOMIZER_ADD, () => {
     assert.notStrictEqual(actual, true);
   });
 
+  it('fails validation if the hostProperties option is not a valid json string', async () => {
+    const actual = await command.validate({ options: { webUrl: webUrl, title: title, clientSideComponentId: clientSideComponentId, hostProperties: 'invalid json string' } }, commandInfo);
+    assert.notStrictEqual(actual, true);
+  });
+
   it('passes validation if all options are passed', async () => {
-    const actual = await command.validate({ options: { webUrl: webUrl, title: title, clientSideComponentId: clientSideComponentId, clientSideComponentProperties: clientSideComponentProperties, scope: 'Site' } }, commandInfo);
+    const actual = await command.validate({ options: { webUrl: webUrl, title: title, clientSideComponentId: clientSideComponentId, clientSideComponentProperties: clientSideComponentProperties, hostProperties: clientSideComponentProperties, scope: 'Site' } }, commandInfo);
     assert.strictEqual(actual, true);
   });
 }); 
