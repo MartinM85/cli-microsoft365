@@ -2,6 +2,10 @@ import { Logger } from '../../../../cli/Logger.js';
 import { odata } from '../../../../utils/odata.js';
 import GraphCommand from '../../../base/GraphCommand.js';
 import commands from '../../commands.js';
+import { z } from 'zod';
+import { globalOptionsZod } from '../../../../Command.js';
+
+export const options = z.strictObject({ ...globalOptionsZod.shape });
 
 class EntraResourcenamespaceListCommand extends GraphCommand {
   public get name(): string {
@@ -10,6 +14,10 @@ class EntraResourcenamespaceListCommand extends GraphCommand {
 
   public get description(): string {
     return 'Get a list of the RBAC resource namespaces and their properties';
+  }
+
+  public get schema(): z.ZodType | undefined {
+    return options;
   }
 
   public defaultProperties(): string[] | undefined {
